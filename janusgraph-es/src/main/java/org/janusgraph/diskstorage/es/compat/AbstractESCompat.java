@@ -141,10 +141,18 @@ public abstract class AbstractESCompat {
 
     public Map<String,Object> match(String key, Object value, String fuzziness) {
         final ImmutableMap.Builder builder = ImmutableMap.builder().put("query", value);
-        builder.put("operator", "and");
-        if (fuzziness != null) builder.put("fuzziness", fuzziness);
+        //语义搜索问题修改
+        if(fuzziness==null)
+            builder.put("operator", "and");
+//        if (fuzziness != null) builder.put("fuzziness", fuzziness);
         return ImmutableMap.of("match", ImmutableMap.of(key, builder.build()));
     }
+
+/*    public Map<String,Object> matchPhrase(String key, Object value, int slop) {
+        if(slop<=0) slop = 1;
+        final ImmutableMap.Builder builder = ImmutableMap.builder().put("query", value).put("slop",slop);
+        return ImmutableMap.of("match_phrase", ImmutableMap.of(key, builder.build()));
+    }*/
 
     public Map<String,Object> queryString(Object query) {
         return ImmutableMap.of("query_string", ImmutableMap.of("query", query));

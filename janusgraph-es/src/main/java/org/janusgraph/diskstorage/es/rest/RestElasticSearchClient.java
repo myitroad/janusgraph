@@ -206,6 +206,8 @@ public class RestElasticSearchClient implements ElasticSearchClient {
 
     @Override
     public void deleteIndex(String indexName) throws IOException {
+        if(!indexExists(indexName))
+            return;
         if (majorVersion.getValue() < 6 && indexExists(indexName)) {
             performRequest(REQUEST_TYPE_DELETE, REQUEST_SEPARATOR + indexName, null);
         } else {
