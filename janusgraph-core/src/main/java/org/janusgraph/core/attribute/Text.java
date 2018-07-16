@@ -14,21 +14,17 @@
 
 package org.janusgraph.core.attribute;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
+import org.janusgraph.core.util.AnalyzerUtil;
 import org.janusgraph.graphdb.query.JanusGraphPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
+import java.util.*;
 
 /**
  * Comparison relations for text objects. These comparisons are based on a tokenized representation
@@ -296,14 +292,20 @@ public enum Text implements JanusGraphPredicate {
 
     public static List<String> tokenize(String str) {
         ArrayList<String> tokens = new ArrayList<String>();
-        int previous = 0;
-        for (int p = 0; p < str.length(); p++) {
-            if (!Character.isLetterOrDigit(str.charAt(p))) {
-                if (p > previous + MIN_TOKEN_LENGTH) tokens.add(str.substring(previous, p));
-                previous = p + 1;
+        try {
+            Set<String> strings = AnalyzerUtil.analyzeQueryString(str);
+            tokens.addAll(strings);
+        } catch (Exception e) {
+            System.err.println("Parser with es error: " + e.fillInStackTrace());
+            int previous = 0;
+            for (int p = 0; p < str.length(); p++) {
+                if (!Character.isLetterOrDigit(str.charAt(p))) {
+                    if (p > previous + MIN_TOKEN_LENGTH) tokens.add(str.substring(previous, p));
+                    previous = p + 1;
+                }
             }
+            if (previous + MIN_TOKEN_LENGTH < str.length()) tokens.add(str.substring(previous, str.length()));
         }
-        if (previous + MIN_TOKEN_LENGTH < str.length()) tokens.add(str.substring(previous, str.length()));
         return tokens;
     }
 
