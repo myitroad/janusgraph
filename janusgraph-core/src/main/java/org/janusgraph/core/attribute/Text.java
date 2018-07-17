@@ -20,9 +20,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import com.huaban.analysis.jieba.SegToken;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
+import org.janusgraph.core.util.AnalyserUtil;
 import org.janusgraph.graphdb.query.JanusGraphPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +60,8 @@ public enum Text implements JanusGraphPredicate {
             List<String> tokenTerms = tokenize(terms.toLowerCase());
             if (!terms.isEmpty() && tokenTerms.isEmpty()) return false;
             for (String term : tokenTerms) {
-                if (!tokens.contains(term)) return false;
+//                if (!tokens.contains(term)) return false;
+                if (tokens.contains(term)) return true;
             }
             return true;
         }
@@ -296,14 +299,20 @@ public enum Text implements JanusGraphPredicate {
 
     public static List<String> tokenize(String str) {
         ArrayList<String> tokens = new ArrayList<String>();
-        int previous = 0;
-        for (int p = 0; p < str.length(); p++) {
-            if (!Character.isLetterOrDigit(str.charAt(p))) {
-                if (p > previous + MIN_TOKEN_LENGTH) tokens.add(str.substring(previous, p));
-                previous = p + 1;
+        try {
+            List<SegToken> tokenList = AnalyserUtil.searchAnalyser(str);
+            tokenList.forEach(token -> tokens.add(token.word));
+        } catch (Exception e) {
+            System.err.println("Parser with es error: " + e.fillInStackTrace());
+            int previous = 0;
+            for (int p = 0; p < str.length(); p++) {
+                if (!Character.isLetterOrDigit(str.charAt(p))) {
+                    if (p > previous + MIN_TOKEN_LENGTH) tokens.add(str.substring(previous, p));
+                    previous = p + 1;
+                }
             }
+            if (previous + MIN_TOKEN_LENGTH < str.length()) tokens.add(str.substring(previous, str.length()));
         }
-        if (previous + MIN_TOKEN_LENGTH < str.length()) tokens.add(str.substring(previous, str.length()));
         return tokens;
     }
 
