@@ -141,10 +141,8 @@ public abstract class AbstractESCompat {
 
     public Map<String,Object> match(String key, Object value, String fuzziness) {
         final ImmutableMap.Builder builder = ImmutableMap.builder().put("query", value);
-        //语义搜索问题修改
-        if(fuzziness==null)
-            builder.put("operator", "and");
-//        if (fuzziness != null) builder.put("fuzziness", fuzziness);
+        builder.put("operator", "and");
+        if (fuzziness != null) builder.put("fuzziness", fuzziness);
         return ImmutableMap.of("match", ImmutableMap.of(key, builder.build()));
     }
 
