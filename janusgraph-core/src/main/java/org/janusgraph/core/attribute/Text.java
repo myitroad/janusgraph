@@ -60,8 +60,7 @@ public enum Text implements JanusGraphPredicate {
             List<String> tokenTerms = tokenize(terms.toLowerCase());
             if (!terms.isEmpty() && tokenTerms.isEmpty()) return false;
             for (String term : tokenTerms) {
-//                if (!tokens.contains(term)) return false;
-                if (tokens.contains(term)) return true;
+                if (!tokens.contains(term)) return false;
             }
             return true;
         }
@@ -303,7 +302,7 @@ public enum Text implements JanusGraphPredicate {
             List<SegToken> tokenList = AnalyserUtil.searchAnalyser(str);
             tokenList.forEach(token -> tokens.add(token.word));
         } catch (Exception e) {
-            System.err.println("Parser with es error: " + e.fillInStackTrace());
+            System.err.println("Parser with Jieba error: " + e.fillInStackTrace());
             int previous = 0;
             for (int p = 0; p < str.length(); p++) {
                 if (!Character.isLetterOrDigit(str.charAt(p))) {

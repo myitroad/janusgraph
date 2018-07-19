@@ -19,7 +19,7 @@ public class AnalyserUtil {
      */
     public static List<SegToken> searchAnalyser(String searchStr) {
         JiebaSegmenter segmenter = new JiebaSegmenter();
-        List<SegToken> list = segmenter.process(searchStr, JiebaSegmenter.SegMode.SEARCH);
+        List<SegToken> list = segmenter.process(searchStr, JiebaSegmenter.SegMode.INDEX);
         return list;
     }
 }
